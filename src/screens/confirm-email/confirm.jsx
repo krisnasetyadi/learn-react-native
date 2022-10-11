@@ -1,6 +1,6 @@
 /* eslint-disable linebreak-style */
-import React, { useState } from 'react';
-
+import React from 'react';
+import { useForm } from 'react-hook-form';
 import {
   View, Text, StyleSheet, ScrollView,
 } from 'react-native';
@@ -34,12 +34,11 @@ const styles = StyleSheet.create({
 });
 
 function ConfirmScreen() {
+  const { control, handleSubmit } = useForm;
   const navigation = useNavigation();
-  const [code, setCode] = useState('');
-  const [user, setUser] = useState('');
 
-  const onConfirm = () => {
-    console.warn('onConfirm');
+  const onConfirm = (data) => {
+    console.warn('onConfirm', data);
     navigation.navigate('home');
   };
   const onResend = () => {
@@ -53,10 +52,14 @@ function ConfirmScreen() {
     <ScrollView>
       <View style={styles.root}>
         <Text style={styles.title}>Confirm your Email</Text>
-        <InputComponent placeholder="Username" value={user} setValue={setUser} />
-        <InputComponent placeholder="Enter your confirmation code" value={code} setValue={setCode} />
+        <InputComponent
+          name="code"
+          placeholder="Enter your confirmation code"
+          control={control}
+          rules={{ required: 'Code is required field' }}
+        />
 
-        <ButtonComponent onPress={onConfirm} text="Confirm" />
+        <ButtonComponent onPress={handleSubmit(onConfirm)} text="Confirm" />
         <ButtonComponent
           onPress={onResend}
           text="Resend code"

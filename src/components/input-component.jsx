@@ -2,7 +2,10 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable linebreak-style */
 import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import {
+  View, TextInput, Text, StyleSheet,
+} from 'react-native';
+import { Controller } from 'react-hook-form';
 
 const styles = StyleSheet.create({
   container: {
@@ -22,18 +25,31 @@ const styles = StyleSheet.create({
 });
 function InputComponent(props) {
   const {
-    value, setValue, placeholder, onHide = false,
+    control, name, placeholder, onHide = false, rules = {},
   } = props;
   return (
-    <View style={styles.container}>
-      <TextInput
-        value={value}
-        onChangeText={setValue}
-        placeholder={placeholder}
-        style={styles.input}
-        secureTextEntry={onHide}
-      />
-    </View>
+
+    <Controller
+      control={control}
+      name={name}
+      rules={rules}
+      render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
+        <>
+          <View style={[styles.container, { borderColor: error ? 'red' : '#e8e8e8' }]}>
+            <TextInput
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              style={styles.input}
+              placeholder={placeholder}
+              secureTextEntry={onHide}
+            />
+          </View>
+          {error && <Text style={{ color: 'red', alignSelf: 'stretch' }}>{error.message || 'Error'}</Text>}
+        </>
+      )}
+    />
+
   );
 }
 

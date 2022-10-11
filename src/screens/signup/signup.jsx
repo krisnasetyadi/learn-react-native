@@ -1,13 +1,15 @@
 /* eslint-disable linebreak-style */
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useForm } from 'react-hook-form';
 import InputComponent from '../../components/input-component';
 import ButtonComponent from '../../components/button/button-component';
 import SocialButton from '../../components/socialbuttons/social-button';
 
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_'{|}~]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
@@ -34,19 +36,19 @@ const styles = StyleSheet.create({
 });
 
 function SignUpScreen() {
+  const {
+    control, handleSubmit, formState: { errors }, watch,
+  } = useForm();
   const navigation = useNavigation();
-  const [user, setUser] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirm, setPasswordConfirm] = useState('');
-
-  const onSignUp = () => {
-    navigation.navigate('signup');
+  const pass = watch('password');
+  const onSignUp = (data) => {
+    console.log('signup', data);
+    navigation.navigate('Signup');
   };
 
   const onForgotPassword = () => {
     console.warn('FORGOT');
-    navigation.navigate('forgot-password');
+    navigation.navigate('ForgotPassword');
   };
 
   const onPresssTerm = () => {
@@ -65,21 +67,58 @@ function SignUpScreen() {
     <ScrollView>
       <View style={styles.root}>
         <Text style={styles.title}>Create an Accont</Text>
-        <InputComponent placeholder="Username" value={user} setValue={setUser} />
-        <InputComponent placeholder="Email" value={email} setValue={setEmail} />
         <InputComponent
+          name="username"
+          placeholder="Username"
+          control={control}
+          rules={{
+            required: 'Username is required field',
+            minLength: {
+              value: 3,
+              message: 'Username should be at least 3 characters long',
+            },
+            maxLength: {
+              value: 3,
+              message: 'Username should be max 24 characters long',
+            },
+          }}
+          errors={errors}
+        />
+        <InputComponent
+          name="email"
+          placeholder="Email"
+          control={control}
+          rules={{
+            pattern: {
+              value: EMAIL_REGEX,
+              message: 'Email is invalid',
+            },
+          }}
+        />
+        <InputComponent
+          name="password"
           placeholder="Password"
-          value={password}
-          setValue={setPassword}
+          control={control}
+          rules={{
+            required: 'Password is a required field',
+            minLength: {
+              value: 8,
+              message: 'Password should be 8 characters long',
+            },
+          }}
           onHide
         />
         <InputComponent
+          name="password_confirmation"
           placeholder="Password Confirmation"
-          value={passwordConfirm}
-          setValue={setPasswordConfirm}
+          control={control}
+          rules={{
+            validate: (value) => value === pass || 'Password do not match',
+
+          }}
           onHide
         />
-        <ButtonComponent onPress={onSignUp} text="Register" />
+        <ButtonComponent onPress={handleSubmit(onSignUp)} text="Register" />
         <Text style={styles.text}>
           By registering, you confirm that you accept our
           <Text style={styles.link} onPress={onPresssTerm}>Terms of Use</Text>

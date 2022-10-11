@@ -1,6 +1,6 @@
 /* eslint-disable linebreak-style */
-import React, { useState } from 'react';
-
+import React from 'react';
+import { useForm } from 'react-hook-form';
 import {
   View, Text, StyleSheet, ScrollView,
 } from 'react-native';
@@ -34,10 +34,11 @@ const styles = StyleSheet.create({
 });
 
 function ForgotPassword() {
+  const { control, handleSubmit } = useForm();
   const navigation = useNavigation();
-  const [user, setUser] = useState('');
 
-  const onSend = () => {
+  const onSend = (data) => {
+    console.warn(data);
     navigation.navigate('ResetPassword');
   };
   const onSignIn = () => {
@@ -47,9 +48,14 @@ function ForgotPassword() {
     <ScrollView>
       <View style={styles.root}>
         <Text style={styles.title}>Reset your Password</Text>
-        <InputComponent placeholder="Username" value={user} setValue={setUser} />
+        <InputComponent
+          name="username"
+          placeholder="Username"
+          control={control}
+          rules={{ required: 'Username is required field' }}
+        />
 
-        <ButtonComponent onPress={onSend} text="Send" />
+        <ButtonComponent onPress={handleSubmit(onSend)} text="Send" />
 
         <ButtonComponent
           onPress={onSignIn}

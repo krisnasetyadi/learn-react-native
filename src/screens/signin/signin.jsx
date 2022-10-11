@@ -1,10 +1,11 @@
 /* eslint-disable linebreak-style */
-import React, { useState } from 'react';
+import React from 'react';
 
 import {
   View, Image, StyleSheet, useWindowDimensions, ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useForm } from 'react-hook-form';
 import Logo from '../../../assets/images/logo.jpg';
 import InputComponent from '../../components/input-component';
 import ButtonComponent from '../../components/button/button-component';
@@ -25,11 +26,11 @@ const styles = StyleSheet.create({
 function SignInScreen() {
   const navigation = useNavigation();
   const { height } = useWindowDimensions();
-  const [user, setUser] = useState('');
-  const [password, setPassword] = useState('');
+  const { control, handleSubmit, formState: { errors } } = useForm();
 
-  const onSignIn = () => {
-    console.warn('TEST');
+  console.log('errors ', errors);
+  const onSignIn = (data) => {
+    console.warn('TEST', data);
     navigation.navigate('Home');
   };
   const onForgotPassword = () => {
@@ -43,9 +44,27 @@ function SignInScreen() {
     <ScrollView>
       <View style={styles.root}>
         <Image source={Logo} style={[styles.logo, { height: height * 0.3 }]} resizeMode="contain" />
-        <InputComponent placeholder="Username" value={user} setValue={setUser} />
-        <InputComponent placeholder="Password" value={password} setValue={setPassword} onHide />
-        <ButtonComponent onPress={onSignIn} text="Sign In" />
+        <InputComponent
+          name="username"
+          placeholder="Username"
+          control={control}
+          rules={{ required: 'username is required' }}
+        />
+        <InputComponent
+          name="password"
+          placeholder="Password"
+          control={control}
+          onHide
+          rules={{
+            required: 'Password is required',
+            minLength: {
+              value: 3,
+              message: 'Password should be 3 characters long',
+            },
+          }}
+        />
+
+        <ButtonComponent onPress={handleSubmit(onSignIn)} text="Sign In" />
         <ButtonComponent
           onPress={onForgotPassword}
           text="Forgot Password"
@@ -53,7 +72,7 @@ function SignInScreen() {
         />
         <SocialButton />
         <ButtonComponent
-          onPress={onSignUp}
+          onPress={handleSubmit(onSignUp)}
           text="Don't have an account ? Create One"
           type="TERTIARY"
         />
